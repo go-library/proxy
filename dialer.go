@@ -18,30 +18,37 @@ type Dialer struct {
 // new proxysocket.Dialer
 // if proxyURL is nil, configured from environment setting
 func New(proxyURL *url.URL) (d *Dialer, err error) {
-
-	if proxyURL == nil {
-		envkeys := []string{
-			"HTTP_PROXY", "HTTPS_PROXY",
-			"http_proxy", "https_proxy",
-		}
-
-		// read environment
-		for i := range envkeys {
-			env := os.Getenv(envkeys[i])
-			if env != "" {
-				proxyURL, err = url.Parse(env)
-				if err != nil {
-					return nil, err
-				}
-				break
-			}
-		}
-	}
-
 	d = new(Dialer)
 	d.ProxyURL = proxyURL
 
 	return d, nil
+}
+
+func NewFromEnvironment() (d *Dialer, err error) {
+	var proxyURL *url.URL
+
+	envkeys := []string{
+		"HTTP_PROXY", "HTTPS_PROXY",
+		"http_proxy", "https_proxy",
+	}
+
+	// read environment
+	for i := range envkeys {
+		env := os.Getenv(envkeys[i])
+		if env != "" {
+			proxyURL, err = url.Parse(env)
+			if err != nil {
+				return nil, err
+			}
+			break
+		}
+	}
+
+	if proxyURL == nil {
+		return nil, fmt.Errorf("proxy environment value was not appeared")
+	}
+
+	return New(proxyURL)
 }
 
 func (p *Dialer) Dial(network, address string) (conn net.Conn, err error) {

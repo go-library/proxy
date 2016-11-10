@@ -19,7 +19,7 @@ func DialWebsocket(url_, origin string) (conn net.Conn, err error) {
 		return nil, err
 	}
 
-	d, err = New(nil)
+	d, err = NewFromEnvironment()
 	if err != nil {
 		return nil, err
 	}
