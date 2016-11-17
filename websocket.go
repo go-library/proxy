@@ -19,7 +19,12 @@ func DialWebsocket(url_, origin string) (conn net.Conn, err error) {
 		return nil, err
 	}
 
-	d, err = NewFromEnvironment()
+	proxyURL, err := GetProxyURL()
+	if err != nil {
+		return nil, err
+	}
+
+	d, err = New(proxyURL)
 	if err != nil {
 		return nil, err
 	}

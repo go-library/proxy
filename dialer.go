@@ -11,22 +11,7 @@ import (
 	"strings"
 )
 
-type Dialer struct {
-	ProxyURL *url.URL
-}
-
-// new proxysocket.Dialer
-// if proxyURL is nil, configured from environment setting
-func New(proxyURL *url.URL) (d *Dialer, err error) {
-	d = new(Dialer)
-	d.ProxyURL = proxyURL
-
-	return d, nil
-}
-
-func NewFromEnvironment() (d *Dialer, err error) {
-	var proxyURL *url.URL
-
+func GetProxyURL() (proxyURL *url.URL, err error) {
 	envkeys := []string{
 		"HTTP_PROXY", "HTTPS_PROXY",
 		"http_proxy", "https_proxy",
@@ -40,15 +25,22 @@ func NewFromEnvironment() (d *Dialer, err error) {
 			if err != nil {
 				return nil, err
 			}
-			break
+			return proxyURL, nil
 		}
 	}
 
-	if proxyURL == nil {
-		return nil, fmt.Errorf("proxy environment value was not appeared")
-	}
+	return nil, fmt.Errorf("proxy environment value was not appeared")
+}
 
-	return New(proxyURL)
+type Dialer struct {
+	ProxyURL *url.URL
+}
+
+func New(proxyURL *url.URL) (d *Dialer, err error) {
+	d = new(Dialer)
+	d.ProxyURL = proxyURL
+
+	return d, nil
 }
 
 func (p *Dialer) Dial(network, address string) (conn net.Conn, err error) {
